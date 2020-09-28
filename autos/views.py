@@ -11,8 +11,7 @@ from autos.models import Auto, Make
 class MainView(LoginRequiredMixin, View):
     def get(self, request):
         mc = Make.objects.all().count()
-        al = Auto.objeccts.all()
-
+        al = Auto.objects.all()
         ctx = {'make_count': mc, 'auto_list': al}
         return render(request, 'autos/auto_list.html', ctx)
 
@@ -21,7 +20,7 @@ class MakeView(LoginRequiredMixin, View):
     def get(self, request):
         ml = Make.objects.all()
         ctx = {'make_list': ml}
-        return render(request, 'auto/make_list.html', ctx)
+        return render(request, 'autos/make_list.html', ctx)
 
 
 class MakeCreate(LoginRequiredMixin, CreateView):

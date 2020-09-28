@@ -31,6 +31,8 @@ ALLOWED_HOSTS = [ '*' ]
 
 # Application definition
 
+APP_NAME = 'DJ4E Samples'
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -41,6 +43,7 @@ INSTALLED_APPS = [
     'polls.apps.PollsConfig',
     'home.apps.HomeConfig',
     'hello.apps.HelloConfig',
+    'autos.apps.AutosConfig',
 ]
 
 MIDDLEWARE = [

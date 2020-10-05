@@ -39,14 +39,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'home.apps.HomeConfig',
+    'ads.apps.AdsConfig',
+    'unesco.apps.UnescoConfig',
 
     # Extensions - installed with pip3 / requirements.txt
     'django_extensions', 
     'crispy_forms',  
     'rest_framework', 
-    'social_django',  
-    'home.apps.HomeConfig',
-    'ads.apps.AdsConfig',
+    'social_django', 
+    
 
 ]
 

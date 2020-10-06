@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'home.apps.HomeConfig',
     'ads.apps.AdsConfig',
-    'unesco.apps.UnescoConfig',
+#    'unesco.apps.UnescoConfig',
 
     # Extensions - installed with pip3 / requirements.txt
     'django_extensions', 

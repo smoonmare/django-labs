@@ -1,13 +1,13 @@
-from django.views import View
+from django.views import View, generic
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.http import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from ads.models import Ad
+from ads.models import Ad, Comment
 from ads.owner import OwnerListView, OwnerDetailView, OwnerCreateView, OwnerUpdateView, OwnerDeleteView
-from ads.forms import CreateForm
+from ads.forms import CreateForm, CommentForm
 
 # Create your views here.
 class AdListView(OwnerListView):
@@ -16,6 +16,14 @@ class AdListView(OwnerListView):
 
 class AdDetailView(OwnerDetailView):
     model = Ad
+    template_name = 'ads/ad_detail.html'
+    
+    def get(self, request, pk):
+        x = Ad.objects.get(id=pk)
+        comments = Comment.objects.filter(ad=x).order_by('-updated_at')
+        comment_form = CommentForm()
+        ctx = {'ad':x, 'comments':comments, 'comment_form':comment_form}
+        return render(request, self.template_name, ctx)
 
 
 class AdCreateView(LoginRequiredMixin, View):
@@ -68,6 +76,23 @@ class AdUpdateView(LoginRequiredMixin, View):
 
 class AdDeleteView(OwnerDeleteView):
     model = Ad
+
+
+class CommentCreateView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        a = get_object_or_404(Ad, id=pk)
+        comment = Comment(text=request.POST['comment'], owner=request.user, ad=a)
+        comment.save()
+        return redirect(reverse('ads:ad_detail', args=[pk]))
+
+
+class CommentDeleteView(OwnerDeleteView):
+    model = Comment
+    template_name = 'ads/comment_delete.html'
+
+    def get_success_url(self):
+        ad = self.object.ad
+        return reverse('ads:ad_detail', args=[ad.id])
 
 
 def stream_file(request, pk):

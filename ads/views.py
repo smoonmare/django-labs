@@ -1,27 +1,44 @@
 from django.views import View, generic
+from django.db.models import Q
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.http import HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.humanize.templatetags.humanize import naturaltime
 
+from ads.utils import dump_queries
 from ads.models import Ad, Comment, Fav
 from ads.owner import OwnerListView, OwnerDetailView, OwnerCreateView, OwnerUpdateView, OwnerDeleteView
 from ads.forms import CreateForm, CommentForm
 
 # Create your views here.
-class AdListView(OwnerListView):
-    model = Ad
+class AdListView(View):
     template_name = "ads/ad_list.html"
 
     def get(self, request):
-        a = Ad.objects.all()
+        strval = request.GET.get("search", False)
+        if strval:
+            query = Q(title__contains=strval)
+            query.add(Q(text__contains=strval), Q.OR)
+            objects = Ad.objects.filter(query).select_related().order_by('-updated_at')[:10]
+        else:
+            objects = Ad.objects.all().order_by('-updated_at')[:10]
+
+        # Augment the ad_list
+        for obj in objects:
+            obj.natural_updated = naturaltime(obj.updated_at)
+
+
         favorites = list()
         if request.user.is_authenticated:
             rows = request.user.favorite_ads.values('id')
             favorites = [row['id'] for row in rows]
-        ctx = {'ad_list':a, 'favorites':favorites}
-        return render(request, self.template_name, ctx)
+        ctx = {'ad_list':objects, 'search':strval, 'favorites':favorites}
+        retval = render(request, self.template_name, ctx)
+
+        dump_queries()
+        return retval
 
 
 class AdDetailView(OwnerDetailView):
